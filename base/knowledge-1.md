@@ -1,8 +1,20 @@
 1. #### Transform动画和直接使用Left、Top改变位置有什么优缺点
-```javascript
-    
-```
+
+最首要的区别是元素位置：
+使用 top left 定位是直接改变元素真实位置的，简单来说你 top: 5px 那就真的是离父容器上端 5px 或者偏离顶部定位 5px（这里我们不讨论 position 各种定位的破事）
+
+但是你用 transform: translateY(-5px) 只是改变了视觉位置，元素本身位置还是在 0px，只是视觉上向上偏移了 5px。这一点对于 css 布局是非常重要的，因为大多数情况下你不希望一个元素在动画的时候（比如飞离 fade off）会导致父元素大小改变然后导致 siblings 元素位置变动从而导致集体 shaking，所以很多时候我们用 transform。
+
+其次的区别是这两种定位本身的语法：
+
+做效果的时候 transform 相对来说是比较方便的，因为 transform 的视角是元素本身，所以比较直观。比如你希望一个元素向左飞 50px 那就是 transform: translateX(-50px)，但是如果用 left 而你的父子元素都是 position: absolute，那可能你用 left 就要写成从 left: 100px 到 left: 30px，这就很不直观。
+
+最后的区别是效率：
+由于 transform 不改动 css 布局，因为渲染行为大多数情况下在元素本身，所以效率比 top left 要高。另外在早期的一些版本，用 transform: translateZ(0px) 强制开启硬件加速好像只能应用在 transform 上，不知道现在这个东西改了没。
+
 2. #### 如何判断链表是否有环
+
+
 
 3. #### 介绍二叉搜索树的特点
 
@@ -162,3 +174,79 @@
 
 81. #### 为什么函数的 arguments 参数是类数组而不是数组？如何遍历类数组?
 
+82. #### vue-router如何实现路由懒加载（ 动态加载路由 ）
+```javascript
+
+```
+83. #### vue-router路由的两种模式
+```javascript
+
+```
+84. #### 如何编译template 模板？
+```javascript
+
+```
+85. #### vue中proxy代理？
+```javascript
+
+```
+86. #### Vue 为什么要用 vm.$set() 解决对象新增属性不能响应的问题 ？你能说说如下代码的实现原理么？
+```javascript
+
+```
+87. #### 讲一下浏览器缓存，什么时候使用本地缓存，什么时候使用协商缓存，什么时候不使用缓存
+```javascript
+
+```
+88. #### v-model原理
+```javascript
+
+```
+89. #### 手写 观察者模式 
+```javascript
+
+```
+90. #### vue react区别
+```javascript
+
+```
+91. ####  react diff算法
+```javascript
+
+```
+92. ####  Vue生命周期介绍一下。created和mounted分别做了哪些事情？有哪些区别？DOM在哪里被渲染？
+```javascript
+
+```
+93. ####  async的关键字原理是什么
+```javascript
+
+```
+94. ####  手写吸顶逻辑
+```javascript
+
+```
+95. #### Cache-Control有哪些属性?分别表示什么意思
+```javascript
+
+```
+96. #### 说一下this指向的各种情况?
+```javascript
+
+```
+97. #### 双向绑定原理 vue2,vue3
+```javascript
+
+```
+98. #### xss攻击、csrf攻击
+```javascript
+
+```
+99. #### 实现一个发布订阅模式 
+```javascript
+
+```
+100. #### vue data为什么是一个函数而不是对象
+```javascript
+
+```

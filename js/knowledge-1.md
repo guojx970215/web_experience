@@ -28,6 +28,7 @@ BigInt 是一种数字类型的数据，它可以表示任意精度格式的整�
 堆区内存一般由开发着分配释放，若开发者不释放，程序结束时可能由垃圾回收机制回收。
 
 ### 2. 数据类型检测的方式有哪些
+```javascript
 （1）typeof
 console.log(typeof 2);               // number
 console.log(typeof true);            // boolean
@@ -83,6 +84,8 @@ console.log(a.call(null));
 
 同样是检测对象obj调用toString方法，obj.toString()的结果和Object.prototype.toString.call(obj)的结果不一样，这是为什么？
 这是因为toString是Object的原型方法，而Array、function等类型作为Object的实例，都重写了toString方法。不同的对象类型调用toString方法时，根据原型链的知识，调用的是对应的重写之后的toString方法（function类型返回内容为函数体的字符串，Array类型返回元素组成的字符串…），而不会去调用Object上原型toString方法（返回对象的具体类型），所以采用obj.toString()不能得到其对象类型，只能将obj转换为字符串类型；因此，在想要得到对象的具体类型时，应该调用Object原型上的toString方法。
+```
+
 ### 3. 判断数组的方式有哪些
 
 通过Object.prototype.toString.call()做判断
@@ -122,6 +125,7 @@ null 的值是机器码 NULL 指针(null 指针的值全是 0)
 那也就是说null的类型标签也是000，和Object的类型标签一样，所以会被判定为Object。
 ### 6. intanceof 操作符的实现原理及实现
 instanceof 运算符用于判断构造函数的 prototype 属性是否出现在对象的原型链中的任何位置。
+```javascript
 function myInstanceof(left, right) {
   // 获取对象的原型
   let proto = Object.getPrototypeOf(left)
@@ -136,7 +140,7 @@ function myInstanceof(left, right) {
     proto = Object.getPrototypeOf(proto);
   }
 }
-
+```
 ### 7. 为什么0.1+0.2 ! == 0.3，如何让其相等  
 在开发过程中遇到类似这样的问题：
 let n1 = 0.1, n2 = 0.2

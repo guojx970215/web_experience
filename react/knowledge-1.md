@@ -320,3 +320,224 @@ export default withFetching(fetching('some-other-type'))(MovieList);
 该方法当props发生变化时执行，初始化render时不执行，在这个回调函数里面，你可以根据属性的变化，通过调用this.setState()来更新你的组件状态，旧的属性还是可以通过this.props来获取,这里调用更新状态是安全的，并不会触发额外的render调用。
 使用好处： 在这个生命周期中，可以在子组件的render函数执行前获取新的props，从而更新子组件自己的state。 可以将数据请求放在这里进行执行，需要传的参数则从componentWillReceiveProps(nextProps)中获取。而不必将所有的请求都放在父组件中。于是该请求只会在该组件渲染时才会发出，从而减轻请求负担。
 componentWillReceiveProps在初始化render的时候不会执行，它会在Component接受到新的状态(Props)时被触发，一般用于父组件状态更新时子组件的重新渲染。
+
+
+### 11. 哪些方法会触发 React 重新渲染？重新渲染 render 会做些什么？
+#### （1）哪些方法会触发 react 重新渲染?
+
+setState（）方法被调用
+
+setState 是 React 中最常用的命令，通常情况下，执行 setState 会触发 render。但是这里有个点值得关注，执行 setState 的时候不一定会重新渲染。当 setState 传入 null 时，并不会触发 render。
+``` javascript
+
+class App extends React.Component {
+  state = {
+    a: 1
+  };
+
+  render() {
+    console.log("render");
+    return (
+      <React.Fragement>
+        <p>{this.state.a}</p>
+        <button
+          onClick={() => {
+            this.setState({ a: 1 }); // 这里并没有改变 a 的值
+          }}
+        >
+          Click me
+        </button>
+        <button onClick={() => this.setState(null)}>setState null</button>
+        <Child />
+      </React.Fragement>
+    );
+  }
+}
+```
+
+父组件重新渲染
+只要父组件重新渲染了，即使传入子组件的 props 未发生变化，那么子组件也会重新渲染，进而触发 render
+#### （2）重新渲染 render 会做些什么?
+
+会对新旧 VNode 进行对比，也就是我们所说的Diff算法。
+对新旧两棵树进行一个深度优先遍历，这样每一个节点都会一个标记，在到深度遍历的时候，每遍历到一和个节点，就把该节点和新的节点树进行对比，如果有差异就放到一个对象里面
+遍历差异对象，根据差异的类型，根据对应对规则更新VNode
+
+React 的处理 render 的基本思维模式是每次一有变动就会去重新渲染整个应用。在 Virtual DOM 没有出现之前，最简单的方法就是直接调用 innerHTML。Virtual DOM厉害的地方并不是说它比直接操作 DOM 快，而是说不管数据怎么变，都会尽量以最小的代价去更新 DOM。React 将 render 函数返回的虚拟 DOM 树与老的进行比较，从而确定 DOM 要不要更新、怎么更新。当 DOM 树很大时，遍历两棵树进行各种比对还是相当耗性能的，特别是在顶层 setState 一个微小的修改，默认会去遍历整棵树。尽管 React 使用高度优化的 Diff 算法，但是这个过程仍然会损耗性能.
+### 12. React如何判断什么时候重新渲染组件？
+组件状态的改变可以因为props的改变，或者直接通过setState方法改变。组件获得新的状态，然后React决定是否应该重新渲染组件。只要组件的state发生变化，React就会对组件进行重新渲染。这是因为React中的shouldComponentUpdate方法默认返回true，这就是导致每次更新都重新渲染的原因。
+当React将要渲染组件时会执行shouldComponentUpdate方法来看它是否返回true（组件应该更新，也就是重新渲染）。所以需要重写shouldComponentUpdate方法让它根据情况返回true或者false来告诉React什么时候重新渲染什么时候跳过重新渲染。
+### 13. React声明组件有哪几种方法，有什么不同？
+React 声明组件的三种方式：
+
+函数式定义的无状态组件
+ES5原生方式React.createClass定义的组件
+ES6形式的extends React.Component定义的组件
+
+#### （1）无状态函数式组件
+它是为了创建纯展示组件，这种组件只负责根据传入的props来展示，不涉及到state状态的操作
+组件不会被实例化，整体渲染性能得到提升，不能访问this对象，不能访问生命周期的方法
+#### （2）ES5 原生方式 React.createClass // RFC
+React.createClass会自绑定函数方法，导致不必要的性能开销，增加代码过时的可能性。
+#### （3）E6继承形式 React.Component // RCC
+目前极为推荐的创建有状态组件的方式，最终会取代React.createClass形式；相对于 React.createClass可以更好实现代码复用。
+无状态组件相对于于后者的区别：
+与无状态组件相比，React.createClass和React.Component都是创建有状态的组件，这些组件是要被实例化的，并且可以访问组件的生命周期方法。
+React.createClass与React.Component区别：
+① 函数this自绑定
+
+React.createClass创建的组件，其每一个成员函数的this都有React自动绑定，函数中的this会被正确设置。
+React.Component创建的组件，其成员函数不会自动绑定this，需要开发者手动绑定，否则this不能获取当前组件实例对象。
+
+② 组件属性类型propTypes及其默认props属性defaultProps配置不同
+
+React.createClass在创建组件时，有关组件props的属性类型及组件默认的属性会作为组件实例的属性来配置，其中defaultProps是使用getDefaultProps的方法来获取默认组件属性的
+React.Component在创建组件时配置这两个对应信息时，他们是作为组件类的属性，不是组件实例的属性，也就是所谓的类的静态属性来配置的。
+
+③ 组件初始状态state的配置不同
+
+React.createClass创建的组件，其状态state是通过getInitialState方法来配置组件相关的状态；
+React.Component创建的组件，其状态state是在constructor中像初始化组件属性一样声明的。
+
+### 14. 对有状态组件和无状态组件的理解及使用场景
+#### （1）有状态组件
+特点：
+
+是类组件
+有继承
+可以使用this
+可以使用react的生命周期
+使用较多，容易频繁触发生命周期钩子函数，影响性能
+内部使用 state，维护自身状态的变化，有状态组件根据外部组件传入的 props 和自身的 state进行渲染。
+
+使用场景：
+
+需要使用到状态的。
+需要使用状态操作组件的（无状态组件的也可以实现新版本react hooks也可实现）
+
+总结：
+类组件可以维护自身的状态变量，即组件的 state ，类组件还有不同的生命周期方法，可以让开发者能够在组件的不同阶段（挂载、更新、卸载），对组件做更多的控制。类组件则既可以充当无状态组件，也可以充当有状态组件。当一个类组件不需要管理自身状态时，也可称为无状态组件。
+#### （2）无状态组件
+特点：
+不依赖自身的状态state
+可以是类组件或者函数组件。
+可以完全避免使用 this 关键字。（由于使用的是箭头函数事件无需绑定）
+有更高的性能。当不需要使用生命周期钩子时，应该首先使用无状态函数组件
+组件内部不维护 state ，只根据外部组件传入的 props 进行渲染的组件，当 props 改变时，组件重新渲染。
+
+使用场景：
+组件不需要管理 state，纯展示
+
+优点：
+简化代码、专注于 render
+组件不需要被实例化，无生命周期，提升性能。 输出（渲染）只取决于输入（属性），无副作用
+视图和数据的解耦分离
+
+缺点：
+无法使用 ref
+无生命周期方法
+无法控制组件的重渲染，因为无法使用shouldComponentUpdate 方法，当组件接受到新的属性时则会重渲染
+
+总结：
+组件内部状态且与外部无关的组件，可以考虑用状态组件，这样状态树就不会过于复杂，易于理解和管理。当一个组件不需要管理自身状态时，也就是无状态组件，应该优先设计为函数组件。比如自定义的 <Button/>、 <Input /> 等组件。
+### 15. 对React中Fragment的理解，它的使用场景是什么？
+在React中，组件返回的元素只能有一个根元素。为了不添加多余的DOM节点，我们可以使用Fragment标签来包裹所有的元素，Fragment标签不会渲染出任何元素。React官方对Fragment的解释：
+
+React 中的一个常见模式是一个组件返回多个元素。Fragments 允许你将子列表分组，而无需向 DOM 添加额外节点。
+```javascript
+import React, { Component, Fragment } from 'react'
+
+// 一般形式
+render() {
+  return (
+    <React.Fragment>
+      <ChildA />
+      <ChildB />
+      <ChildC />
+    </React.Fragment>
+  );
+}
+// 也可以写成以下形式
+render() {
+  return (
+    <>
+      <ChildA />
+      <ChildB />
+      <ChildC />
+    </>
+  );
+}
+```
+### 16. React如何获取组件对应的DOM元素？
+可以用ref来获取某个子节点的实例，然后通过当前class组件实例的一些特定属性来直接获取子节点实例。ref有三种实现方法:
+
+字符串格式：字符串格式，这是React16版本之前用得最多的，例如：<p ref="info">span</p>
+函数格式：ref对应一个方法，该方法有一个参数，也就是对应的节点实例，例如：<p ref={ele => this.info = ele}></p>
+createRef方法：React 16提供的一个API，使用React.createRef()来实现 　　　　　　  
+
+### 17. React中可以在render访问refs吗？为什么？
+```javascript
+<>
+  <span id="name" ref={this.spanRef}>{this.state.title}</span>
+  <span>{
+     this.spanRef.current ? '有值' : '无值'
+  }</span>
+</>
+```
+不可以，render 阶段 DOM 还没有生成，无法获取 DOM。DOM 的获取需要在 pre-commit 阶段和 commit 阶段：
+
+### 18. 对React的插槽(Portals)的理解，如何使用，有哪些使用场景
+React 官方对 Portals 的定义：
+
+Portal 提供了一种将子节点渲染到存在于父组件以外的 DOM 节点的优秀的方案
+
+Portals 是React 16提供的官方解决方案，使得组件可以脱离父组件层级挂载在DOM树的任何位置。通俗来讲，就是我们 render 一个组件，但这个组件的 DOM 结构并不在本组件内。
+Portals语法如下：
+ReactDOM.createPortal(child, container);
+
+
+第一个参数 child 是可渲染的 React 子项，比如元素，字符串或者片段等;
+第二个参数 container 是一个 DOM 元素。
+
+一般情况下，组件的render函数返回的元素会被挂载在它的父级组件上：
+```javascript
+import DemoComponent from './DemoComponent';
+render() {
+  // DemoComponent元素会被挂载在id为parent的div的元素上
+  return (
+    <div id="parent">
+        <DemoComponent />
+    </div>
+  );
+}
+```
+然而，有些元素需要被挂载在更高层级的位置。最典型的应用场景：当父组件具有overflow: hidden或者z-index的样式设置时，组件有可能被其他元素遮挡，这时就可以考虑要不要使用Portal使组件的挂载脱离父组件。例如：对话框，模态窗。
+```javascript
+import DemoComponent from './DemoComponent';
+render() {
+  // DemoComponent元素会被挂载在id为parent的div的元素上
+  return (
+    <div id="parent">
+        <DemoComponent />
+    </div>
+  );
+}
+```
+### 19. 在React中如何避免不必要的render？
+React 基于虚拟 DOM 和高效 Diff 算法的完美配合，实现了对 DOM 最小粒度的更新。大多数情况下，React 对 DOM 的渲染效率足以业务日常。但在个别复杂业务场景下，性能问题依然会困扰我们。此时需要采取一些措施来提升运行性能，其很重要的一个方向，就是避免不必要的渲染（Render）。这里提下优化的点：
+
+shouldComponentUpdate 和 PureComponent
+
+在 React 类组件中，可以利用 shouldComponentUpdate或者 PureComponent 来减少因父组件更新而触发子组件的 render，从而达到目的。shouldComponentUpdate 来决定是否组件是否重新渲染，如果不希望组件重新渲染，返回 false 即可。
+
+利用高阶组件
+
+在函数组件中，并没有 shouldComponentUpdate 这个生命周期，可以利用高阶组件，封装一个类似 PureComponet 的功能
+
+使用 React.memo
+
+React.memo 是 React 16.6 新的一个 API，用来缓存组件的渲染，避免不必要的更新，其实也是一个高阶组件，与 PureComponent 十分类似，但不同的是， React.memo只能用于函数组件。
+### 20. 对 React-Intl 的理解，它的工作原理？
+React-intl是雅虎的语言国际化开源项目FormatJS的一部分，通过其提供的组件和API可以与ReactJS绑定。
+React-intl提供了两种使用方法，一种是引用React组件，另一种是直接调取API，官方更加推荐在React项目中使用前者，只有在无法使用React组件的地方，才应该调用框架提供的API。它提供了一系列的React组件，包括数字格式化、字符串格式化、日期格式化等。
+在React-intl中，可以配置不同的语言包，他的工作原理就是根据需要，在语言包之间进行切换。
