@@ -1,7 +1,7 @@
 1. #### Transform动画和直接使用Left、Top改变位置有什么优缺点
 
 最首要的区别是元素位置：
-使用 top left 定位是直接改变元素真实位置的，简单来说你 top: 5px 那就真的是离父容器上端 5px 或者偏离顶部定位 5px（这里我们不讨论 position 各种定位的破事）
+**使用 top left 定位是直接改变元素真实位置的，简单来说你 top: 5px 那就真的是离父容器上端 5px 或者偏离顶部定位 5px（这里我们不讨论 position 各种定位的破事）**
 
 但是你用 transform: translateY(-5px) 只是改变了视觉位置，元素本身位置还是在 0px，只是视觉上向上偏移了 5px。这一点对于 css 布局是非常重要的，因为大多数情况下你不希望一个元素在动画的时候（比如飞离 fade off）会导致父元素大小改变然后导致 siblings 元素位置变动从而导致集体 shaking，所以很多时候我们用 transform。
 
@@ -9,24 +9,172 @@
 
 做效果的时候 transform 相对来说是比较方便的，因为 transform 的视角是元素本身，所以比较直观。比如你希望一个元素向左飞 50px 那就是 transform: translateX(-50px)，但是如果用 left 而你的父子元素都是 position: absolute，那可能你用 left 就要写成从 left: 100px 到 left: 30px，这就很不直观。
 
-最后的区别是效率：
-由于 transform 不改动 css 布局，因为渲染行为大多数情况下在元素本身，所以效率比 top left 要高。另外在早期的一些版本，用 transform: translateZ(0px) 强制开启硬件加速好像只能应用在 transform 上，不知道现在这个东西改了没。
-
 2. #### 如何判断链表是否有环
+（1）.给一个单链表，判断其中是否有环的存在；
+主要是利用的「Floyd 判圈算法」（又称龟兔赛跑算法），**首先慢指针每次移动一步，快指针移动2步，如果没有环，那么慢指针永远也追不上快指针。如果有环，那么快指针一定会遇到慢指针**
+``` javascript
+    var hasCycle = function (head) {
+        let fast = head, slow = head;
+        // 零个结点或者一个结点，肯定无环
+        if (fast.next == null || fast.next.next == null) return false;
+        while (fast && fast.next) {
+            //走一步
+            slow = slow.next;
+            //走二步
+            fast = fast.next.next;
+            if (slow === fast) {
+                return true;
+            }
+        }
+        return false;
+    };
+```
 
+（2）.如果存在环，找出环的入口点；
 
+（3）.如果存在环，求出环上节点的个数；
+
+（4）.如果存在环，求出链表的长度；
+
+（5）.如果存在环，求出环上距离任意一个节点最远的点（对面节点）；
+
+（6）.（扩展）如何判断两个无环链表是否相交；
+
+（7）.（扩展）如果相交，求出第一个相交的节点；
 
 3. #### 介绍二叉搜索树的特点
+1.本质是查找所有符合条件的元素，朴素思想是 检查每个元素，本题目中利用规律不断对搜索空间剪枝
+2.二叉搜索树的中序遍历是一个有序数组，假设根节点的值为val，则所有比val大的点在右边，比val小的点在左边。
 
 4. #### 介绍暂时性死区
+在代码块内，使用let、const命令声明变量之前，该变量都是不可用的。这在语法上，称为“暂时性死区”
+“暂时性死区”也意味着typeof不再是一个百分之百安全的操作
 
 5. #### ES6中的Map和原生的对象有什么区别
+object的键的类型是 字符串；
+map的键的类型是 可以是任意类型；
+object获取键值使用Object.keys（返回数组）；
+Map获取键值使用 map变量.keys() (返回迭代器)。
 
-6. #### Redux中异步的请求怎么处理
+6. #### 讲讲redux
+原理
+**Redux将整个应用的存储到一个地方（store)，组件可以通过将意图（action)分发到（dispatch）到store，store接收到会将放到reducer来处理，reducer接受旧state和action，处理之后将新state返回，然后通知订阅store的组件改变state来刷新的视图。**
 
-7. ### Redux中间件是什么东西，接受几个参数（两端的柯里化函数）
+创建redux的store对象，需要调用combineReducers和createStore函数，下面解释不包含中间件。
+```javascript
+    const reducer = combineReducers({
+        home: homeNumber,
+        number: addNumber
+    })
+    const store = createStore(reducer)
+    // 暂时挂载在window下，下面会使用到
+    window.$reduxStore = store
+```
 
-8. #### 柯里化函数两端的参数具体是什么东西
+combineReducers函数
+首先调用combineReducers函数，将多个reducer函数作为参数传入
+```javascript
+    function combineReducers(reducers) {
+        return function combination(state = {}, action) {
+            let hasChanged = false
+            const nextState = {}
+            for (let i = 0; i < finalReducerKeys.length; i++) {
+                // finalReducerKeys 是传入reducers对象的key值
+                const key = finalReducerKeys[i]
+                // finalReducers 等价于 reducers
+                const reducer = finalReducers[key]
+                const previousStateForKey = state[key]
+                // 运行reducer函数，返回一个state
+                // 核心：调用combination函数，实际就是循环调用传入的reducer函数
+                const nextStateForKey = reducer(previousStateForKey, action)
+    
+                nextState[key] = nextStateForKey
+                // hasChanged = hasChanged || nextStateForKey !== previousStateForKey
+            }
+            // hasChanged = hasChanged || finalReducerKeys.length !== Object.keys(state).length
+            // 返回state对象
+            return nextState
+        }
+    }
+```
+**上面的代码其实非常简单，combineReducers函数运行，返回一个新的combination函数。combination函数的主要作用是返回一个挂载全部state的对象。 当combination函数被调用时，实际就是循环调用传入的reducer函数，返回state对象。将combination函数作为参数传入到createStore函数中。**
+
+createStore函数
+```javascript
+    function createStore(reducer, preloadedState, enhancer) {
+        // reducer --> combination函数
+        let currentReducer = reducer
+        // 全部的state属性，挂载在currentState上
+        let currentState = preloadedState
+    
+        // 下面的中间件会用到
+        if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+            // 第二个参数是一个函数，没有第三个参数的情况
+            enhancer = preloadedState
+            // 将preloadedState重置
+            preloadedState = undefined
+        }
+        if (typeof enhancer !== 'undefined') {
+            // 存在中间件时，将createStore传入中间件函数，调用enhancer函数，return结束。
+            return enhancer(createStore)(reducer, preloadedState)
+        }
+    
+        function dispatch(action) {
+            // currentReducer --> combination函数
+            currentState = currentReducer(currentState, action)
+        }
+    
+        // 初始化调用dispatch，创建初始state
+        dispatch({ type: ActionTypes.INIT })
+    
+        const store = ({
+            dispatch: dispatch,
+            subscribe,s
+            getState,
+            replaceReducer,
+            [$$observable]: observable
+        }
+        return store
+    }
+```
+
+**reducer就是传入的combination函数，preloadedState是初始化的state(没有太大的作用)，enhancer是中间件，没有第三个参数enhancer的情况下，同时第二个参数preloadedState是一个函数，preloadedState被赋值给enhancer。**
+
+**调用dispatch函数初始化，currentReducer即是传入combination函数，就向上文提到的，调用combination函数实际就是循环调用reducer函数。所有的state对象，被挂载在内部变量currentState上。存在中间件enhancer时，将createStore传入中间件函数，调用enhancer函数，return结束，这个下文会继续讲到。**
+
+创建的store对象，暴露出的方法如下：
+```javascript
+    const store = ({
+        // 分发 action，这是触发 state 变化的惟一途径。
+        dispatch: dispatch as Dispatch<A>,
+        // 变化监听器
+        subscribe,
+        // 获取store下的 全部state
+        getState,
+        // 替换 store 当前用来计算 state 的 reducer
+        replaceReducer
+    }
+    return store
+```
+
+**dispatch函数触发action，调用reducer函数，修改state。subscribe函数可以监听变化state的变化。getState函数获取全部state。replaceReducer函数替换用来计算state的reducer函数。**
+
+**通过combineReducers函数合并reducer函数，返回一个新的函数combination（这个函数负责循环遍历运行reducer函数，返回全部state）。将这个新函数作为参数传入createStore函数，函数内部通过dispatch，初始化运行传入的combination，state生成，返回store对象**
+
+
+三大原则（官网）
+单一数据源
+**整个应用state的被储存在一棵 object tree 中，并且这个 object tree 只存在于唯一一个store中。**
+
+State 是只读的
+唯一改变 state 的方法就是触发 action，action 是一个用于描述已发生事件的普通对象。
+
+使用纯函数来执行修改
+为了描述 action 如何改变 state tree，你需要编写 reducers
+
+7. #### Redux中间件是什么东西，接受几个参数（两端的柯里化函数）
+
+8. #### Redux中异步的请求怎么处理
 
 9. #### React怎么做数据的检查和变化
 
@@ -250,3 +398,5 @@
 ```javascript
 
 ```
+
+101. #### 柯里化函数两端的参数具体是什么东西
