@@ -262,13 +262,13 @@ function quickSort(arr) {
     let quickIndex = Math.floor(arr.length / 2)
     let quickValue = arr.splice(quickIndex, 1)[0]
     for (let i = 0; i < arr.length; i++) {
-        if(arr[i] < quickIndex){
+        if (arr[i] < quickIndex) {
             left.push(arr[i])
-        }else{
+        } else {
             right.push(arr[i])
         }
     }
-    return quickSort(left).concat(quickValue,quickSort(right))
+    return quickSort(left).concat(quickValue, quickSort(right))
 }
 /**
  * 选择排序
@@ -348,4 +348,41 @@ const flat = arr => {
         return pre.concat(Array.isArray(cur) ? myflat(cur) : cur);
     }, []);
 };
+
+/**
+ * 检测是否是纯对象isPlainObject
+ * @param {*} obj 
+ */
+function isPlainObject(obj){
+	var proto, Ctor;
+	if(!obj || Object.prototype.toString.call(obj) !== "[object Object]"){
+		return false;
+	}
+	proto = Object.getPrototypeOf(obj);
+	if(!proto) return true;
+	Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
+	return typeof Ctor === "function" && Function.prototype.toString.call(Ctor) === Function.prototype.toString.call(Object);	
+}
+
+/**
+ * 对象深合并代码实现：
+ * @param {*} obj1 
+ * @param {*} obj2 
+ */
+function deepMerge(obj1, obj2){
+	var isPlain1 = isPlainObject(obj1);
+	var isPlain2 = isPlainObject(obj2);
+	//obj1或obj2中只要其中一个不是对象，则按照浅合并的规则进行合并
+	if(!isPlain1 || !isPlain2) return shallowMerge(obj1, obj2);
+	//如果都是对象，则进行每一层级的递归合并
+	let keys = [
+		...Object.keys(obj2),
+		...Object.getOwnPropertySymbols(obj2)
+	]
+	keys.forEach(function(key){
+		obj1[key] =  deepMerge(obj1[key], obj2[key]);//这里递归调用
+	});
+	
+	return obj1;
+}
 
