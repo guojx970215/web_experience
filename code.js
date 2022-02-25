@@ -14,6 +14,7 @@ function deepClone(obj) {
     }
     return result
 }
+//---------------------------------------------------------------------
 /**
  * 2.手写防抖
  * @param {*} fn 执行方法
@@ -31,6 +32,7 @@ function debounce(fn, delay = 500) {
         }, delay);
     }
 }
+//---------------------------------------------------------------------
 /**
  * 3.手写节流
  * @param {*} fn 执行方法
@@ -48,6 +50,7 @@ function debounce(fn, delay = 500) {
         }, delay);
     }
 }
+//---------------------------------------------------------------------
 /**
  * 4.手写promise
  * @param {*} fn 
@@ -127,6 +130,7 @@ function Promise(fn) {
     }
     fn(resolve, reject);
 }
+//---------------------------------------------------------------------
 /**
  * 5.实现一个call
  * 判断调用对象是否为函数，即使是定义在函数的原型上的，但是可能出现使用 call 等方式调用的情况。
@@ -155,6 +159,7 @@ function call(context) {
     delete context.fn;
     return result;
 }
+//---------------------------------------------------------------------
 /**
  * 实现一个new
  */
@@ -169,6 +174,7 @@ class Parent {
 };
 const child = new Parent('echo', 26);
 child.sayName() //echo
+//---------------------------------------------------------------------
 /**
  * 7.实现call
  * 
@@ -193,6 +199,7 @@ function apply(context) {
     delete context.fn;
     return result;
 }
+//---------------------------------------------------------------------
 /**
  * 8.实现一个bind
  * @param {*} context 
@@ -212,6 +219,7 @@ function bind(context) {
         );
     };
 }
+//---------------------------------------------------------------------
 /**
  * 9.手写观察者模式
  * 实现添加/删除/派发更新三个事件
@@ -249,8 +257,9 @@ let sub = new Subject() // 创建主体
 sub.add(observer_1) // 添加观察者
 sub.add(observer_2)
 sub.notify('send msg')
+//---------------------------------------------------------------------
 /**
- * 手写快排
+ * 10.手写快排
  * @param {*} arr 
  */
 function quickSort(arr) {
@@ -259,7 +268,7 @@ function quickSort(arr) {
     }
     let left = []
     let right = []
-    let quickIndex = Math.floor(arr.length / 2)
+    let quickIndex = Math.floor(arr.length / 2) //
     let quickValue = arr.splice(quickIndex, 1)[0]
     for (let i = 0; i < arr.length; i++) {
         if (arr[i] < quickIndex) {
@@ -270,8 +279,9 @@ function quickSort(arr) {
     }
     return quickSort(left).concat(quickValue, quickSort(right))
 }
+//---------------------------------------------------------------------
 /**
- * 选择排序
+ * 11.手写选择排序
  * @param {*} arr 
  */
 function selectSort(arr) {
@@ -288,8 +298,9 @@ function selectSort(arr) {
     }
     return arr;
 }
+//---------------------------------------------------------------------
 /**
- * 手写数组去重
+ * 12.手写数组去重
  * 
  * @param {*} a 
  * @param {*} b 
@@ -327,8 +338,9 @@ function distinct3(a, b) {
 function distinct4(a, b) {
     return Array.from(new Set([...a, ...b]))
 }
+//---------------------------------------------------------------------
 /**
- * 手写数组扁平
+ * 13.手写数组扁平
  * @param {*} arr 
  */
 function flat(arr) {
@@ -348,41 +360,132 @@ const flat = arr => {
         return pre.concat(Array.isArray(cur) ? myflat(cur) : cur);
     }, []);
 };
-
+//---------------------------------------------------------------------
 /**
- * 检测是否是纯对象isPlainObject
+ * 14.检测是否是纯对象isPlainObject
  * @param {*} obj 
  */
-function isPlainObject(obj){
-	var proto, Ctor;
-	if(!obj || Object.prototype.toString.call(obj) !== "[object Object]"){
-		return false;
-	}
-	proto = Object.getPrototypeOf(obj);
-	if(!proto) return true;
-	Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
-	return typeof Ctor === "function" && Function.prototype.toString.call(Ctor) === Function.prototype.toString.call(Object);	
+function isPlainObject(obj) {
+    var proto, Ctor;
+    if (!obj || Object.prototype.toString.call(obj) !== "[object Object]") {
+        return false;
+    }
+    proto = Object.getPrototypeOf(obj);
+    if (!proto) return true;
+    Ctor = Object.prototype.hasOwnProperty.call(proto, "constructor") && proto.constructor;
+    return typeof Ctor === "function" && Function.prototype.toString.call(Ctor) === Function.prototype.toString.call(Object);
 }
-
+//---------------------------------------------------------------------
 /**
- * 对象深合并代码实现：
+ * 15.对象深合并代码实现：
  * @param {*} obj1 
  * @param {*} obj2 
  */
-function deepMerge(obj1, obj2){
-	var isPlain1 = isPlainObject(obj1);
-	var isPlain2 = isPlainObject(obj2);
-	//obj1或obj2中只要其中一个不是对象，则按照浅合并的规则进行合并
-	if(!isPlain1 || !isPlain2) return shallowMerge(obj1, obj2);
-	//如果都是对象，则进行每一层级的递归合并
-	let keys = [
-		...Object.keys(obj2),
-		...Object.getOwnPropertySymbols(obj2)
-	]
-	keys.forEach(function(key){
-		obj1[key] =  deepMerge(obj1[key], obj2[key]);//这里递归调用
-	});
-	
-	return obj1;
+function deepMerge(obj1, obj2) {
+    var isPlain1 = isPlainObject(obj1);
+    var isPlain2 = isPlainObject(obj2);
+    //obj1或obj2中只要其中一个不是对象，则按照浅合并的规则进行合并
+    if (!isPlain1 || !isPlain2) return shallowMerge(obj1, obj2);
+    //如果都是对象，则进行每一层级的递归合并
+    let keys = [
+        ...Object.keys(obj2),
+        ...Object.getOwnPropertySymbols(obj2)
+    ]
+    keys.forEach(function (key) {
+        obj1[key] = deepMerge(obj1[key], obj2[key]);//这里递归调用
+    });
+
+    return obj1;
 }
+//---------------------------------------------------------------------
+/**
+ * 16.深度优先遍历
+ * @param {*} node 
+ * @param {*} nodeList 
+ */
+function deepTraversal(node, nodeList) {
+    if (node !== null) {
+        nodeList.push(node)
+        let children = node.children
+        for (let i = 0; i < children.length; i++) {
+            deepTraversal(children[i], nodeList)
+        }
+    }
+    return nodeList
+}
+//---------------------------------------------------------------------
+/**
+ * 17.广度优先遍历
+ * @param {*} node 
+ * @param {*} nodeList 
+ */
+function widthTraversal(node) {
+    let nodes = []
+    let stack = []
+    if (node) {
+        stack.push(node)
+        while (stack.length) {
+            let item = stack.shift()
+            let children = item.children
+            nodes.push(item)
+            // 队列，先进先出
+            // nodes = [] stack = [parent]
+            // nodes = [parent] stack = [child1,child2,child3]
+            // nodes = [parent, child1] stack = [child2,child3,child1-1,child1-2]
+            // nodes = [parent,child1,child2]
+            for (let i = 0; i < children.length; i++) {
+                stack.push(children[i])
+            }
+        }
+    }
+    return nodes
+}
+//---------------------------------------------------------------------
+// 18.前中后遍历
+/**
+ * 前序遍历
+ * @param {*} root 
+ */
+var preorderTraversal = function (root) {
+    let res = [];
+    const preOrder = (root) => {
+        if (root == null) return res;
+        res.push(root.val);
+        preOrder(root.left);
+        preOrder(root.right);
+    };
+    preOrder(root);
+    return res;
+};
+/**
+ * 中序遍历
+ * @param {*} root 
+ */
+var postorderTraversal = function (root) {
+    let res = [];
+    const postOrder = (root) => {
+        if (root == null) return;
+        postOrder(root.left);
+        res.push(root.val);
+        postOrder(root.right);
+    };
+    postOrder(root);
+    return res;
+};
+/**
+ * 后序遍历
+ * @param {*} root 
+ */
+var postorderTraversal = function (root) {
+    let res = [];
+    const postOrder = (root) => {
+        if (root == null) return;
+        postOrder(root.left);
+        postOrder(root.right);
+        res.push(root.val);
+    };
+    postOrder(root);
+    return res;
+};
+//---------------------------------------------------------------------
 

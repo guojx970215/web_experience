@@ -1,11 +1,12 @@
 ## JS知识点
 
 ### 1. JavaScript有哪些数据类型，它们的区别？
-JavaScript共有八种数据类型，分别是 Undefined、Null、Boolean、Number、String、Object、Symbol、BigInt。
+JavaScript共有八种数据类型，分别是 
+**Undefined、Null、Boolean、Number、String、Object、Symbol、BigInt。**
 其中 Symbol 和 BigInt 是ES6 中新增的数据类型：
 
-Symbol 代表创建后独一无二且不可变的数据类型，它主要是为了解决可能出现的全局变量冲突的问题。
-BigInt 是一种数字类型的数据，它可以表示任意精度格式的整数，使用 BigInt 可以安全地存储和操作大整数，即使这个数已经超出了 Number 能够表示的安全整数范围。
+**Symbol 代表创建后独一无二且不可变的数据类型，它主要是为了解决可能出现的全局变量冲突的问题。**
+**BigInt 是一种数字类型的数据，它可以表示任意精度格式的整数，使用 BigInt 可以安全地存储和操作大整数，即使这个数已经超出了 Number 能够表示的安全整数范围。**
 
 这些数据可以分为原始数据类型和引用数据类型：
 
@@ -407,3 +408,7 @@ console.log(outObj) // {inObj: {a: 2, b: 2}}
 Object.assign()方法接收的第一个参数作为目标对象，后面的所有参数作为源对象。然后把所有的源对象合并到目标对象中。它会修改了一个对象，因此会触发 ES6 setter。
 扩展操作符（…）使用它时，数组或对象中的每一个值都会被拷贝到一个新的数组或对象中。它不复制继承的属性或类的属性，但是它会复制ES6的 symbols 属性。
 ```
+
+
+
+  
